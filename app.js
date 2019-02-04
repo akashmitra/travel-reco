@@ -8,7 +8,7 @@ const { WebhookClient } = require('dialogflow-fulfillment');
 const { Card, Suggestion } = require('dialogflow-fulfillment');
 const { Carousel } = require('actions-on-google');
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 8080;
 process.env.DEBUG = 'dialogflow:debug';
 
 const app = express();
