@@ -1,0 +1,22 @@
+{
+  "name": "neopoc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Akash Mitra",
+  "license": "ISC",
+  "dependencies": {
+    "express": "*",
+    "body-parser": "*",
+    "ejs": "^2.4.2",
+    "morgan": "*",
+    "neo4j-driver": "*",
+    "actions-on-google": "^2.5.0",
+    "dialogflow-fulfillment": "^0.6.1",
+    "log4js": "^0.6.29"
+  }
+}

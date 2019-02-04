@@ -1,0 +1,15 @@
+{
+    "hotelid": "",
+    "hotelName": "",
+    "hotelType": "",
+    "priceType": "",
+    "rating": "",
+    "unitType": [],
+    "amenities": [],
+    "pos": [],
+    "Neg": [],
+    "coOrdinates": {
+        "lat": "",
+        "long": ""
+    }
+}

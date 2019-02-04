@@ -1,0 +1,9 @@
+{
+    "username": "johndoe",
+    "firstName": "John",
+    "lastName": "Doe",
+    "purchaseHistory": [],
+    "likes": [],
+    "dislikes": [],
+    "preferredAmenities": ["Swimming Pool","Business Center","Barbecue Grill","Hot Tub"]
+}
