@@ -12,7 +12,6 @@
   "dependencies": {
     "express": "*",
     "body-parser": "*",
-    "ejs": "^2.4.2",
     "morgan": "*",
     "neo4j-driver": "*",
     "actions-on-google": "^2.5.0",

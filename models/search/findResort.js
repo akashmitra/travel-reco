@@ -2,128 +2,101 @@ const logger = require('../../config/log4js/log-config');
 const neo4jsession = require('../../config/neo4j/neo4j-config');
 
 
-exports.findAll = function (req, cb) {
+/** Test and match All */
+exports.findAll = cb => {
     neo4jsession
         .run('MATCH (n) RETURN n')
-        .then(function (result) {
-            let personArr = [];
-            result.records.forEach(function (record) {
-                personArr.push(record._fields[0].properties);
-            });
+        .then((result) => {
+            let placesArr = result.records.map(place => place._fields[0].properties);
             neo4jsession.close();
-            cb(personArr);
+            cb(null, placesArr);
         })
-        .catch(function (err) {
-            logger.trace(err);
-        });
+        .catch(err => cb(err));
 };
 
 /** Service to find places by State name */
-exports.findPlaceByState = function (req, cb) {
-
-    let statename = req.body.state;
-    logger.trace('State :: ', statename);
-    let query = "MATCH (p:Place)-[:STATE]->(" + statename + ") RETURN p.name AS Destinations";
-    session
+exports.findPlaceByState = function (params, cb) {
+    let statename = params.statename;
+    logger.trace(`State :: ${statename}`);
+    let query = `MATCH (p:Place)-[:STATE]->(s:State) WHERE s.name='${statename}' RETURN p.name AS Destinations`;
+    neo4jsession
         .run(query)
-        .then(function (result) {
+        .then((result) => {
             logger.trace('Results :: ', result);
-            var placeArr = [];
-            result.records.forEach(function (record) {
-                placeArr.push({
-                    name: record._fields[0]
-                });
-            });
-            session.close();
-            cb(placeArr);
+            let placeArr = result.records.map(place => place._fields[0]);
+            neo4jsession.close();
+            cb(null, placeArr);
         })
-        .catch(function (err) {
-            logger.trace(err);
-        });
+        .catch((err) => cb(err));
 };
 
-/** Service to find tourist attraction by Hotel Name */
-exports.findAttractionByHotel = function (req, cb) {
-    let hotelname = req.body.hotelname;
-    logger.trace('Hotel Name :: ', hotelname);
-    session
-        .run(`MATCH (r:Resort)-[:PLACE]->(p:Place)<-[:ATTRACTION_IN]-(a:Attraction)
-              WHERE r.name = '${hotelname}'
-              RETURN a.name AS Attractions`, { hotelname: hotelname })
-        .then(function (result) {
+/** Service to find tourist attraction by Hotel */
+exports.findAttractionByHotel = function (params, cb) {
+    let hotelname = params.hotelname;
+    logger.trace(`State :: ${hotelname}`);
+    let query = `MATCH (r:Resort)-[:PLACE]->(p:Place)<-[:ATTRACTION_IN]-(a:Attraction)
+    WHERE r.name = '${hotelname}'
+    RETURN a.name AS Attractions`;
+    neo4jsession
+        .run(query)
+        .then((result) => {
             logger.trace('Results :: ', result);
-            var touristAttractArr = [];
-            result.records.forEach(function (record) {
-                touristAttractArr.push({
-                    name: record._fields[0]
-                });
-            });
-            session.close();
-            cb(touristAttractArr);
+            let placeArr = result.records.map(place => place._fields[0]);
+            neo4jsession.close();
+            cb(null, placeArr);
         })
-        .catch(function (err) {
-            logger.trace(err);
-        });
+        .catch((err) => cb(err));
 };
 
 /** Service to find resorts in a c Category, to be visited in s Season, sorted by rating */
-exports.findResortByCategoryAndSeason = function (req, cb) {
-    let category = req.body.category;
-    let season = req.body.season;
+exports.findResortByCategoryAndSeason = function (params, cb) {
+    let category = params.category;
+    let season = params.season;
+    //let sortbyrating = params.sortbyrating;
 
-    session
-        .run(`MATCH (r1:Resort)-[:CATEGORY]->(c:Category),
-                    (r1:Resort)-[:PLACE]->(p:Place),
-                    (p:Place)-[:BEST_SEASON]->(s:Season),
-                    (r1:Resort)-[:RATING]->(r2:Rating)
-                    WHERE c.name = '${category}' AND s.name='${season}'
-                    RETURN r1.name AS Resort, r2.rating AS Rating, r1.address AS Address
-                    ORDER BY r2.rating DESC`,
-            { category: category, season: season })
-        .then(function (result) {
+    let query = `MATCH (r1:Resort)-[:CATEGORY]->(c:Category),
+    (r1:Resort)-[:PLACE]->(p:Place),
+    (p:Place)-[:BEST_SEASON]->(s:Season),
+    (r1:Resort)-[:RATING]->(r2:Rating)
+    WHERE c.name = '${category}' AND s.name='${season}'
+    RETURN r1.name AS Resort, r2.rating AS Rating, r1.address AS Address
+    ORDER BY r2.rating DESC`;
+    neo4jsession
+        .run(query)
+        .then((result) => {
             logger.trace('Results :: ', result);
-            var resortsArr = [];
-            result.records.forEach(function (record) {
-                resortsArr.push({
-                    name: record._fields[0]
-                });
-            });
-            session.close();
-            cb(resortsArr);
+            let placeArr = result.records.map(place => place._fields[0]);
+            neo4jsession.close();
+            cb(null, placeArr);
         })
-        .catch(function (err) {
-            logger.trace(err);
-        });
+        .catch((err) => cb(err));
 };
 
 /** Service to find resorts in a c Category, in budget b, with facility f, sorted by rating r */
-exports.findResortBycbfr = function () {
+exports.findByCategoryBudgetFacilityRating = function (params, cb) {
+    let category = params.category;
+    let budget = params.budget;
+    let facility = params.facility;
+    let rating = params.rating;
 
-    let category = req.body.category;
-    let budget = req.body.budget;
-    let facility = req.body.facility;
-    let rating = req.body.rating;
+    logger.trace('Budget ::', budget);
 
-    session
-        .run(`MATCH (r1:Resort)-[:CATEGORY]->(c:Category),
-                        (r1:Resort)-[:RATING]->(r2:Rating),
-                        (r1:Resort)-[:FACILITY]->(f:Facility)
-                    WHERE c.name = '${category}' AND r1.avg_rate <= ${budget} AND f.name = '${facility}' AND r2.rating >= ${rating}
-                    RETURN r1.name AS Resort, r2.rating AS Rating, r1.avg_rate AS Rate_Per_Day
-                    ORDER BY r2.rating DESC`,
-            { category: category, budget: budget, facility: facility, rating: rating })
-        .then(function (result) {
+    let query = `MATCH (r1:Resort)-[:CATEGORY]->(c:Category),
+    (r1:Resort)-[:RATING]->(r2:Rating),
+    (r1:Resort)-[:FACILITY]->(f:Facility)
+   WHERE c.name = '${category}' AND r1.avg_rate <= ${budget} AND f.name = '${facility}' AND r2.rating >= ${rating}
+   RETURN r1.name AS Resort, r2.rating AS Rating, r1.avg_rate AS Rate_Per_Day
+   ORDER BY r2.rating DESC`;
+
+    logger.trace('Query ::', query);
+
+    neo4jsession
+        .run(query)
+        .then((result) => {
             logger.trace('Results :: ', result);
-            var resortsArr = [];
-            result.records.forEach(function (record) {
-                resortsArr.push({
-                    name: record._fields[0]
-                });
-            });
-            session.close();
-            cb(resortsArr);
+            let placeArr = result.records.map(place => place._fields[0]);
+            neo4jsession.close();
+            cb(null, placeArr);
         })
-        .catch(function (err) {
-            logger.trace(err);
-        });
+        .catch((err) => cb(err));
 };
