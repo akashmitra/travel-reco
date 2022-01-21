@@ -16,6 +16,6 @@
     "neo4j-driver": "*",
     "actions-on-google": "^2.5.0",
     "dialogflow-fulfillment": "^0.6.1",
-    "log4js": "^0.6.29"
+    "log4js": "^6.4.0"
   }
 }
